@@ -1,0 +1,97 @@
+---
+title: "Political Direction 1973-2019"
+author: "Sascha Berg"
+date: "04/01/2022"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Installing libraries 
+```{r libraries}
+library(tidyverse)
+library(ggplot2)
+library(here)
+```
+
+# Importing the dataset into R
+```{r data-import}
+elections <- read_csv2("Election_data.csv")
+```
+Next I am inspecting the data using the str() function.
+```{r inspecting}
+str(elections)
+```
+By using str() I am able to see that I have 289 observations of 3 variables. The 3 variables being "Party", "Year" and "Votes_percentage"
+
+
+# Plotting the data
+Next I will plot the all of the data to show each party's percentage of votes from 1973 until 2019
+Using geom_line() to create a graph showing lines. 
+
+```{r plotting}
+ggplot(data = elections) + 
+  geom_line(mapping = aes(x = Year, y = votes_percentage, color = Party)) + 
+  labs(x = "Year", y = "% of votes", title = "Election results 1973-2019")
+```
+
+
+# Only plotting left-wing parties
+Using the filter() function to collect data about left-wing parties. 
+```{r}
+Left_wing <- elections %>% 
+  filter(Party == "Socialdemokratiet" | Party == "Radikale_Venstre" | Party == "Socialistisk_Folkeparti" | Party == "Enhedslisten" | Party == "Alternativet" | Party == "Danmarks_Kommunistiske_parti" | Party == "Faelles_Kurs" | Party == "Venstresocialisterne")
+```
+
+Then I will plot it using geom_line
+```{r}
+ggplot(data = Left_wing) + 
+  geom_line(mapping = aes(x = Year, y = votes_percentage, color = Party)) +
+   labs(x = "Year", y = "% of votes", title = "Percentage of votes on left-wing parties 1973-2019")
+```
+
+Now to get an overlook of the pattern in the votes of left-wing parties I will use geom_jitter() and geom_smooth() together. 
+
+```{r point-and-smooth1}
+ggplot(data = Left_wing) +
+  geom_jitter(aes(x = Year, y = Left_wing$votes_percentage, color = Party), alpha = 0.5, width = 0.2, height = 0.2) +
+  geom_smooth(mapping = aes(x = Year, y = Left_wing$votes_percentage)) +
+  labs(x = "Year", y = "% of votes", title = "Percentage of votes on left-wing parties 1973-2019")
+```
+
+# Only plotting right-wing parties
+I will do the same thing, now collecting the right-wing parties from the dataset. 
+```{r }
+Right_wing <-  filter(elections, Party == "Konservative" | Party == "Nye_Borgerlige" | Party == "Centrum_demokraterne" | Party == "Liberal_Alliance" | Party == "Dansk_Folkeparti" | Party == "Kristeligt_folkeparti_Kristendemokraterne" | Party == "Venstre" | Party == "Fremskridtspartiet" | Party == "Danmarks_Retsforbund" ) 
+```
+
+```{r}
+ggplot(data = Right_wing) + 
+  geom_line(mapping = aes(x = Year, y = votes_percentage, color = Party)) + 
+  labs(x = "Year", y = "% of votes", title = "Percentage of votes on right-wing parties 1973-2019")
+```
+
+```{r point-and-smooth2}
+ggplot(data = Right_wing) +
+  geom_jitter(aes(x = Year, y = Right_wing$votes_percentage, color = Party), alpha = 0.5, width = 0.2, height = 0.2) +
+  geom_smooth(mapping = aes(x = Year, y = Right_wing$votes_percentage)) +
+  labs(x = "Year", y = "% of votes", title = "Percentage of votes on right-wing parties 1973-2019")
+```
+
+# Plotting left- and right-wing parties togehter 
+
+In order to compare the two previous graphs, I use geom_smooth and apply multiple dataframes in order for it to show both the left- and right-wing parties in one graph. 
+
+```{r}
+ ggplot() +
+  geom_smooth(data=Right_wing, aes(x = Right_wing$Year, y = Right_wing$votes_percentage, color = "Right-wing")) +
+  geom_smooth(data = Left_wing, aes(x = Left_wing$Year ,y = Left_wing$votes_percentage, color = "Left-wing" )) +
+  labs(x = "Year", y = "% of votes", title = "Percentage of votes on left- and right-wing parties 1973-2019")
+```
+
+
